@@ -1,922 +1,411 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>DeutschPath C1</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>DeutschPath C1 Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=Sora:wght@400;500;600&display=swap" rel="stylesheet"/>
 <style>
-  :root {
-    --emerald:     #0d4f3c;
-    --emerald-mid: #156347;
-    --emerald-lit: #1e8a5e;
-    --frost:       #f0f5f2;
-    --frost-dim:   #c8d8d0;
-    --slate:       #2a3630;
-    --slate-deep:  #151c18;
-    --slate-card:  #1b2420;
-    --white:       #ffffff;
-    --gold:        #c9a84c;
-    --gold-dim:    #8a6e2f;
-    --danger:      #d94f3a;
-    --success:     #3ab87a;
-    --text-main:   #e8f0ec;
-    --text-dim:    #7fa090;
-    --text-muted:  #4a6155;
-    --border:      rgba(30, 138, 94, 0.18);
-    --glass:       rgba(13, 79, 60, 0.35);
-    --glass-frost: rgba(240, 245, 242, 0.06);
-    --radius:      10px;
-    --shadow:      0 8px 40px rgba(0,0,0,0.45);
-  }
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0a0a0b;--surface:#111113;--surface2:#18181b;--surface3:#222227;
+  --red:#e63946;--gold:#f4a261;--gold2:#e76f51;
+  --text:#f0f0f0;--muted:#888;--border:rgba(255,255,255,0.07);
+  --green:#4caf82;--blue:#5b9bd5;
+}
+body{background:var(--bg);color:var(--text);font-family:'Sora',sans-serif;min-height:100vh}
+#app{padding:0 0 4rem}
 
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+.hero{
+  background:linear-gradient(135deg,#0a0a0b 0%,#1a0a08 50%,#0a0a0b 100%);
+  border-bottom:1px solid var(--border);
+  padding:2rem 1.5rem 1.5rem;
+  position:relative;overflow:hidden;
+}
+.hero::before{
+  content:'';position:absolute;top:-60px;right:-40px;
+  width:300px;height:300px;border-radius:50%;
+  background:radial-gradient(circle,rgba(230,57,70,0.12),transparent 70%);
+  pointer-events:none;
+}
+.hero-flag{display:flex;gap:0;margin-bottom:1rem;border-radius:3px;overflow:hidden;width:36px;height:24px}
+.flag-s{flex:1}
+.hero-title{font-family:'DM Serif Display',serif;font-size:2.2rem;letter-spacing:-0.02em;line-height:1.1}
+.hero-sub{font-size:0.8rem;color:var(--muted);margin-top:0.4rem;font-family:'DM Mono',monospace;letter-spacing:0.05em}
 
-  body {
-    font-family: 'DM Sans', sans-serif;
-    background: var(--slate-deep);
-    color: var(--text-main);
-    min-height: 100vh;
-    overflow-x: hidden;
-  }
+.stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:1.25rem 1.5rem}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1rem;text-align:center}
+.stat-num{font-size:1.5rem;font-weight:600;line-height:1}
+.stat-label{font-size:0.7rem;color:var(--muted);margin-top:4px;font-family:'DM Mono',monospace}
+.red{color:var(--red)}.gold{color:var(--gold)}.green{color:var(--green)}
 
-  /* ── NAV ── */
-  .nav {
-    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 0 2rem;
-    height: 56px;
-    background: rgba(21, 28, 24, 0.85);
-    backdrop-filter: blur(20px);
-    border-bottom: 1px solid var(--border);
-  }
-  .nav-brand {
-    display: flex; align-items: center; gap: 8px;
-    font-family: 'Syne', sans-serif; font-weight: 700; font-size: 1.05rem;
-    letter-spacing: -0.02em; color: var(--frost);
-    cursor: pointer;
-  }
-  .nav-brand .flag { font-size: 1.1rem; }
-  .nav-tabs {
-    display: flex; gap: 2px;
-    background: rgba(255,255,255,0.04);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 3px;
-  }
-  .nav-tab {
-    display: flex; flex-direction: column; align-items: center; gap: 2px;
-    padding: 5px 14px;
-    border-radius: 6px;
-    font-size: 0.62rem; font-weight: 500;
-    color: var(--text-dim);
-    cursor: pointer;
-    transition: all 0.2s;
-    border: none; background: none;
-    letter-spacing: 0.03em; text-transform: uppercase;
-  }
-  .nav-tab svg { width: 15px; height: 15px; }
-  .nav-tab.active { background: var(--emerald-mid); color: var(--frost); }
-  .nav-tab:hover:not(.active) { color: var(--text-main); background: rgba(255,255,255,0.06); }
+.section{padding:0 1.5rem;margin-bottom:1.5rem}
+.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem}
+.section-title{font-size:0.7rem;font-family:'DM Mono',monospace;letter-spacing:0.1em;color:var(--muted);text-transform:uppercase}
 
-  /* ── SCREEN SWITCHER ── */
-  .screen { display: none; }
-  .screen.active { display: block; }
+.ring-wrap{display:flex;align-items:center;gap:1.25rem;background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:1.25rem}
+svg.ring{width:80px;height:80px;flex-shrink:0}
+.ring-info .pct{font-family:'DM Serif Display',serif;font-size:2rem}
+.ring-info .desc{font-size:0.75rem;color:var(--muted);margin-top:2px}
+.ring-info .level-badge{display:inline-block;background:rgba(230,57,70,0.15);color:var(--red);border:1px solid rgba(230,57,70,0.3);border-radius:6px;font-size:0.65rem;padding:2px 8px;margin-top:6px;font-family:'DM Mono',monospace}
 
-  /* ════════════════════════════
-     LOGIN SCREEN
-  ════════════════════════════ */
-  #login-screen {
-    min-height: 100vh;
-    display: flex; align-items: center; justify-content: center;
-    position: relative; overflow: hidden;
-  }
+.months-grid{display:grid;grid-template-columns:1fr;gap:10px}
+.month-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden;cursor:pointer;transition:border-color 0.2s}
+.month-card:hover{border-color:rgba(255,255,255,0.15)}
+.month-card.active{border-color:var(--red)}
+.month-card.locked{opacity:0.5;cursor:not-allowed}
+.month-head{display:flex;align-items:center;justify-content:space-between;padding:1rem 1.1rem}
+.month-label{font-size:0.65rem;font-family:'DM Mono',monospace;color:var(--muted);margin-bottom:2px}
+.month-name{font-size:0.95rem;font-weight:500}
+.month-tag{font-size:0.65rem;font-family:'DM Mono',monospace;color:var(--gold);background:rgba(244,162,97,0.12);border:1px solid rgba(244,162,97,0.2);border-radius:5px;padding:2px 7px}
+.month-tag.done{color:var(--green);background:rgba(76,175,130,0.12);border-color:rgba(76,175,130,0.2)}
+.month-tag.active{color:var(--red);background:rgba(230,57,70,0.12);border-color:rgba(230,57,70,0.2)}
+.month-prog{height:3px;background:var(--border)}
+.month-prog-fill{height:100%;transition:width 0.6s ease}
+.month-body{padding:0 1.1rem;overflow:hidden;max-height:0;transition:max-height 0.4s ease,padding 0.3s}
+.month-body.open{max-height:600px;padding:0.75rem 1.1rem 1.1rem}
 
-  .login-bg {
-    position: absolute; inset: 0;
-    background:
-      radial-gradient(ellipse 80% 60% at 30% 50%, rgba(13,79,60,0.55) 0%, transparent 70%),
-      radial-gradient(ellipse 60% 80% at 75% 20%, rgba(21,99,71,0.3) 0%, transparent 60%),
-      linear-gradient(160deg, #0a1410 0%, #111a15 40%, #0d1e17 100%);
-  }
+.week-item{display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)}
+.week-item:last-child{border-bottom:none}
+.week-check{width:20px;height:20px;border-radius:6px;border:1.5px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;margin-top:2px;transition:all 0.2s}
+.week-check.done{background:var(--green);border-color:var(--green)}
+.week-check.done::after{content:'';display:block;width:5px;height:9px;border:2px solid #fff;border-top:none;border-left:none;transform:rotate(45deg) translate(-1px,-1px)}
+.week-text{flex:1}
+.week-num{font-size:0.65rem;font-family:'DM Mono',monospace;color:var(--muted)}
+.week-title{font-size:0.85rem;font-weight:500;margin-top:1px}
+.week-desc{font-size:0.75rem;color:var(--muted);margin-top:2px;line-height:1.5}
+.project-task{background:rgba(244,162,97,0.06);border:1px solid rgba(244,162,97,0.15);border-radius:8px;padding:10px 12px;margin-top:10px}
+.project-task .pt-label{font-size:0.6rem;font-family:'DM Mono',monospace;color:var(--gold);margin-bottom:4px;letter-spacing:0.08em}
+.project-task .pt-text{font-size:0.78rem;color:rgba(240,240,240,0.8);line-height:1.5}
 
-  /* Animated mesh lines */
-  .login-bg::before {
-    content: '';
-    position: absolute; inset: 0;
-    background-image:
-      linear-gradient(rgba(30,138,94,0.07) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(30,138,94,0.07) 1px, transparent 1px);
-    background-size: 60px 60px;
-    mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 0%, transparent 100%);
-  }
+.streak-row{display:flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1rem 1.25rem}
+.flame{font-size:1.5rem}
+.streak-info{flex:1}
+.streak-num{font-size:1.2rem;font-weight:600}
+.streak-label{font-size:0.7rem;color:var(--muted);font-family:'DM Mono',monospace}
+.streak-days{display:flex;gap:4px;margin-left:auto}
+.day-dot{width:22px;height:22px;border-radius:50%;background:var(--surface2);border:1.5px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:0.55rem;font-family:'DM Mono',monospace;color:var(--muted)}
+.day-dot.lit{background:var(--red);border-color:var(--red);color:#fff}
 
-  .login-bg::after {
-    content: '';
-    position: absolute;
-    top: -40%; left: -20%;
-    width: 140%; height: 140%;
-    background: conic-gradient(from 200deg at 35% 55%, transparent 0deg, rgba(13,79,60,0.12) 60deg, transparent 120deg);
-    animation: rotateMesh 20s linear infinite;
-  }
+.milestone-box{background:linear-gradient(135deg,rgba(230,57,70,0.1),rgba(244,162,97,0.08));border:1px solid rgba(230,57,70,0.25);border-radius:14px;padding:1.25rem}
+.milestone-icon{font-size:1.5rem;margin-bottom:8px}
+.milestone-title{font-size:0.85rem;font-weight:500;margin-bottom:4px}
+.milestone-text{font-size:0.75rem;color:var(--muted);line-height:1.6}
 
-  @keyframes rotateMesh { to { transform: rotate(360deg); } }
+.chart-wrap{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:1.25rem}
+.chart-label{font-size:0.7rem;font-family:'DM Mono',monospace;color:var(--muted);margin-bottom:1rem;letter-spacing:0.08em}
 
-  /* Floating orbs */
-  .orb {
-    position: absolute; border-radius: 50%;
-    filter: blur(80px); pointer-events: none;
-  }
-  .orb-1 { width: 400px; height: 400px; top: -10%; left: -10%; background: rgba(13,79,60,0.4); animation: drift 12s ease-in-out infinite; }
-  .orb-2 { width: 300px; height: 300px; bottom: -5%; right: 5%; background: rgba(21,99,71,0.25); animation: drift 15s ease-in-out infinite reverse; }
-  .orb-3 { width: 200px; height: 200px; top: 40%; right: 20%; background: rgba(201,168,76,0.08); animation: drift 10s ease-in-out infinite 3s; }
-  @keyframes drift {
-    0%,100% { transform: translate(0,0) scale(1); }
-    33% { transform: translate(20px,-15px) scale(1.05); }
-    66% { transform: translate(-10px,20px) scale(0.97); }
-  }
-
-  .login-card {
-    position: relative; z-index: 2;
-    width: 100%; max-width: 400px;
-    margin: 0 1rem;
-    padding: 2.5rem 2rem;
-    background: rgba(15, 25, 20, 0.75);
-    backdrop-filter: blur(30px);
-    border: 1px solid rgba(30, 138, 94, 0.25);
-    border-radius: 16px;
-    box-shadow: 0 0 0 1px rgba(255,255,255,0.04) inset, var(--shadow);
-    animation: cardIn 0.7s cubic-bezier(0.22,1,0.36,1) both;
-  }
-  @keyframes cardIn {
-    from { opacity: 0; transform: translateY(24px) scale(0.97); }
-    to   { opacity: 1; transform: none; }
-  }
-
-  .login-card::before {
-    content: '';
-    position: absolute; top: 0; left: 10%; right: 10%; height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(30,138,94,0.6), rgba(201,168,76,0.4), transparent);
-    border-radius: 1px;
-  }
-
-  .login-logo {
-    display: flex; align-items: center; justify-content: center; gap: 10px;
-    margin-bottom: 0.4rem;
-  }
-  .login-logo .flag { font-size: 1.4rem; }
-  .login-logo-text {
-    font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.25rem;
-    letter-spacing: -0.03em;
-    background: linear-gradient(135deg, var(--frost) 0%, var(--frost-dim) 100%);
-    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-  }
-
-  .login-sub {
-    text-align: center; font-size: 0.78rem; color: var(--text-dim);
-    letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 2rem;
-    font-weight: 300;
-  }
-
-  .login-divider {
-    display: flex; align-items: center; gap: 10px;
-    margin: 1.4rem 0;
-  }
-  .login-divider span { color: var(--text-muted); font-size: 0.72rem; letter-spacing: 0.05em; white-space: nowrap; }
-  .login-divider::before, .login-divider::after {
-    content: ''; flex: 1;
-    height: 1px; background: var(--border);
-  }
-
-  .social-row {
-    display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
-    margin-bottom: 1.4rem;
-  }
-  .social-btn {
-    display: flex; align-items: center; justify-content: center; gap: 8px;
-    padding: 10px;
-    background: rgba(255,255,255,0.05);
-    border: 1px solid rgba(255,255,255,0.1);
-    border-radius: var(--radius);
-    color: var(--text-main); font-size: 0.82rem; font-weight: 500;
-    cursor: pointer; transition: all 0.2s;
-    font-family: 'DM Sans', sans-serif;
-  }
-  .social-btn:hover {
-    background: rgba(255,255,255,0.09);
-    border-color: rgba(30,138,94,0.35);
-    transform: translateY(-1px);
-  }
-  .social-btn svg { width: 18px; height: 18px; }
-
-  .field {
-    margin-bottom: 12px;
-  }
-  .field label {
-    display: block; font-size: 0.72rem; font-weight: 500;
-    color: var(--text-dim); letter-spacing: 0.06em; text-transform: uppercase;
-    margin-bottom: 6px;
-  }
-  .field input {
-    width: 100%;
-    padding: 11px 14px;
-    background: rgba(255,255,255,0.05);
-    border: 1px solid rgba(30,138,94,0.2);
-    border-radius: var(--radius);
-    color: var(--text-main); font-size: 0.9rem;
-    font-family: 'DM Sans', sans-serif;
-    outline: none; transition: all 0.2s;
-  }
-  .field input::placeholder { color: var(--text-muted); }
-  .field input:focus {
-    border-color: rgba(30,138,94,0.55);
-    background: rgba(30,138,94,0.08);
-    box-shadow: 0 0 0 3px rgba(30,138,94,0.1);
-  }
-
-  .forgot {
-    text-align: right; margin-bottom: 16px;
-    font-size: 0.75rem; color: var(--text-dim);
-    cursor: pointer; transition: color 0.2s;
-  }
-  .forgot:hover { color: var(--emerald-lit); }
-
-  .btn-primary {
-    width: 100%; padding: 12px;
-    background: linear-gradient(135deg, var(--emerald-mid) 0%, var(--emerald-lit) 100%);
-    border: none; border-radius: var(--radius);
-    color: var(--white); font-size: 0.95rem; font-weight: 600;
-    font-family: 'Syne', sans-serif; letter-spacing: 0.02em;
-    cursor: pointer; transition: all 0.25s;
-    position: relative; overflow: hidden;
-  }
-  .btn-primary::after {
-    content: ''; position: absolute; inset: 0;
-    background: linear-gradient(135deg, rgba(255,255,255,0.12) 0%, transparent 100%);
-  }
-  .btn-primary:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 24px rgba(30,138,94,0.45);
-  }
-  .btn-primary:active { transform: translateY(0); }
-
-  .register-link {
-    text-align: center; margin-top: 1.2rem;
-    font-size: 0.8rem; color: var(--text-dim);
-  }
-  .register-link a { color: var(--emerald-lit); cursor: pointer; }
-
-  /* ════════════════════════════
-     DASHBOARD SCREEN
-  ════════════════════════════ */
-  #dash-screen {
-    padding-top: 56px;
-    min-height: 100vh;
-    background:
-      radial-gradient(ellipse 60% 40% at 15% 10%, rgba(13,79,60,0.2) 0%, transparent 60%),
-      radial-gradient(ellipse 50% 60% at 85% 80%, rgba(21,99,71,0.12) 0%, transparent 60%),
-      var(--slate-deep);
-  }
-
-  .dash-grid {
-    display: grid;
-    grid-template-columns: 260px 1fr 220px;
-    grid-template-rows: auto;
-    gap: 14px;
-    padding: 20px 24px 32px;
-    max-width: 1400px; margin: 0 auto;
-  }
-
-  /* Cards */
-  .card {
-    background: var(--slate-card);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 18px;
-    position: relative; overflow: hidden;
-  }
-  .card::before {
-    content: ''; position: absolute;
-    top: 0; left: 0; right: 0; height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(30,138,94,0.3), transparent);
-  }
-  .card-title {
-    font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.72rem;
-    letter-spacing: 0.1em; text-transform: uppercase;
-    color: var(--text-dim); margin-bottom: 14px;
-  }
-
-  /* ── COLUMN 1 LEFT ── */
-  .col-left { grid-column: 1; display: flex; flex-direction: column; gap: 14px; }
-
-  /* Progress Ring Card */
-  .ring-card { text-align: center; }
-  .ring-wrap {
-    position: relative; width: 130px; height: 130px;
-    margin: 0 auto 14px;
-  }
-  .ring-wrap svg { width: 100%; height: 100%; transform: rotate(-90deg); }
-  .ring-track { fill: none; stroke: rgba(30,138,94,0.15); stroke-width: 10; }
-  .ring-fill {
-    fill: none; stroke-width: 10; stroke-linecap: round;
-    stroke: url(#ringGrad);
-    stroke-dasharray: 339;
-    stroke-dashoffset: 100;
-    transition: stroke-dashoffset 1.5s cubic-bezier(0.4,0,0.2,1);
-  }
-  .ring-center {
-    position: absolute; inset: 0;
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
-    gap: 2px;
-  }
-  .ring-pct {
-    font-family: 'Syne', sans-serif; font-size: 1.7rem; font-weight: 800;
-    background: linear-gradient(135deg, var(--frost), var(--frost-dim));
-    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-    line-height: 1;
-  }
-  .ring-label { font-size: 0.65rem; color: var(--text-dim); letter-spacing: 0.05em; }
-  .level-badge {
-    display: inline-flex; align-items: center; gap: 6px;
-    background: linear-gradient(135deg, rgba(201,168,76,0.15), rgba(201,168,76,0.08));
-    border: 1px solid rgba(201,168,76,0.3);
-    border-radius: 20px; padding: 4px 12px;
-    font-size: 0.7rem; font-weight: 600;
-    color: var(--gold); letter-spacing: 0.06em;
-    margin-bottom: 10px;
-  }
-  .level-sub { font-size: 0.75rem; color: var(--text-dim); }
-
-  /* Streak Card */
-  .streak-card { padding: 14px 18px; }
-  .streak-row {
-    display: flex; align-items: center; justify-content: space-between;
-    margin-bottom: 10px;
-  }
-  .streak-num {
-    font-family: 'Syne', sans-serif; font-size: 2rem; font-weight: 800;
-    color: var(--gold); line-height: 1;
-  }
-  .streak-unit { font-size: 0.68rem; color: var(--text-dim); letter-spacing: 0.05em; margin-top: 2px; }
-  .xp-bar-wrap { background: rgba(255,255,255,0.06); border-radius: 4px; height: 6px; overflow: hidden; }
-  .xp-bar { height: 100%; border-radius: 4px; width: 68%;
-    background: linear-gradient(90deg, var(--emerald-mid), var(--emerald-lit));
-    position: relative;
-  }
-  .xp-bar::after {
-    content: ''; position: absolute; right: 0; top: 0; bottom: 0; width: 12px;
-    background: rgba(255,255,255,0.4); border-radius: 4px;
-    animation: pulse 1.5s ease-in-out infinite;
-  }
-  @keyframes pulse { 0%,100%{opacity:0.4} 50%{opacity:1} }
-  .xp-label { font-size: 0.68rem; color: var(--text-dim); margin-top: 6px; display: flex; justify-content: space-between; }
-
-  /* Skill breakdown */
-  .skill-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-  .skill-chip {
-    background: rgba(255,255,255,0.04);
-    border: 1px solid var(--border);
-    border-radius: 8px; padding: 10px 12px;
-  }
-  .skill-chip-name { font-size: 0.65rem; color: var(--text-dim); margin-bottom: 6px; letter-spacing: 0.05em; }
-  .skill-chip-pct { font-family: 'Syne', sans-serif; font-size: 1.05rem; font-weight: 700; color: var(--text-main); }
-  .skill-mini-bar { height: 3px; border-radius: 2px; margin-top: 6px; background: rgba(255,255,255,0.07); overflow: hidden; }
-  .skill-mini-fill { height: 100%; border-radius: 2px; background: var(--emerald-lit); transition: width 1s ease; }
-  .skill-chip.warn .skill-chip-pct { color: var(--gold); }
-  .skill-chip.warn .skill-mini-fill { background: var(--gold); }
-  .skill-chip.ok  .skill-chip-pct { color: var(--success); }
-  .skill-chip.ok  .skill-mini-fill { background: var(--success); }
-
-  /* ── COLUMN 2 CENTER ── */
-  .col-center { grid-column: 2; display: flex; flex-direction: column; gap: 14px; }
-
-  /* Roadmap */
-  .roadmap-card { flex: 1; }
-  .roadmap-list { display: flex; flex-direction: column; gap: 0; }
-  .roadmap-item {
-    display: flex; align-items: flex-start; gap: 14px;
-    padding: 12px 0;
-    border-bottom: 1px solid rgba(30,138,94,0.1);
-    position: relative;
-  }
-  .roadmap-item:last-child { border-bottom: none; }
-  .roadmap-dot {
-    width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 0.65rem; font-weight: 700; margin-top: 1px;
-    position: relative; z-index: 1;
-  }
-  .roadmap-dot.done { background: var(--emerald-mid); color: var(--frost); border: 2px solid var(--emerald-lit); }
-  .roadmap-dot.active { background: var(--gold-dim); color: var(--gold); border: 2px solid var(--gold); box-shadow: 0 0 10px rgba(201,168,76,0.3); }
-  .roadmap-dot.upcoming { background: rgba(255,255,255,0.05); color: var(--text-muted); border: 2px solid rgba(255,255,255,0.1); }
-  .roadmap-line {
-    position: absolute; left: 14px; top: 40px; bottom: -12px; width: 1px;
-    background: linear-gradient(to bottom, rgba(30,138,94,0.3), transparent);
-    z-index: 0;
-  }
-  .roadmap-item:last-child .roadmap-line { display: none; }
-  .rm-module { font-size: 0.62rem; color: var(--text-dim); letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 2px; }
-  .rm-title { font-family: 'Syne', sans-serif; font-weight: 600; font-size: 0.88rem; color: var(--text-main); margin-bottom: 4px; }
-  .rm-bar-wrap { height: 3px; background: rgba(255,255,255,0.07); border-radius: 2px; overflow: hidden; max-width: 200px; }
-  .rm-bar { height: 100%; border-radius: 2px; }
-  .rm-bar.done { background: var(--emerald-mid); }
-  .rm-bar.active { background: var(--gold); }
-  .rm-tag {
-    display: inline-flex; margin-left: auto; flex-shrink: 0;
-    padding: 2px 8px; border-radius: 20px; font-size: 0.62rem; font-weight: 600;
-    letter-spacing: 0.04em; margin-top: 2px;
-  }
-  .rm-tag.done { background: rgba(58,184,122,0.12); color: var(--success); border: 1px solid rgba(58,184,122,0.2); }
-  .rm-tag.active { background: rgba(201,168,76,0.12); color: var(--gold); border: 1px solid rgba(201,168,76,0.2); }
-  .rm-tag.upcoming { background: rgba(255,255,255,0.05); color: var(--text-muted); border: 1px solid rgba(255,255,255,0.08); }
-
-  /* Feature tiles */
-  .feature-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
-  .feature-tile {
-    background: rgba(255,255,255,0.04);
-    border: 1px solid var(--border);
-    border-radius: 10px; padding: 16px 14px;
-    cursor: pointer; transition: all 0.25s; position: relative; overflow: hidden;
-  }
-  .feature-tile::before {
-    content: ''; position: absolute; inset: 0;
-    background: radial-gradient(circle at 0% 100%, rgba(30,138,94,0.12) 0%, transparent 60%);
-    opacity: 0; transition: opacity 0.3s;
-  }
-  .feature-tile:hover { border-color: rgba(30,138,94,0.4); transform: translateY(-2px); }
-  .feature-tile:hover::before { opacity: 1; }
-  .ft-icon {
-    width: 36px; height: 36px; border-radius: 8px;
-    display: flex; align-items: center; justify-content: center;
-    margin-bottom: 10px; font-size: 1rem;
-  }
-  .ft-icon.em { background: rgba(30,138,94,0.2); border: 1px solid rgba(30,138,94,0.3); }
-  .ft-icon.go { background: rgba(201,168,76,0.15); border: 1px solid rgba(201,168,76,0.25); }
-  .ft-icon.re { background: rgba(217,79,58,0.15); border: 1px solid rgba(217,79,58,0.25); }
-  .ft-name { font-family: 'Syne', sans-serif; font-weight: 600; font-size: 0.8rem; color: var(--text-main); margin-bottom: 3px; }
-  .ft-desc { font-size: 0.68rem; color: var(--text-dim); line-height: 1.4; }
-
-  /* Progress Chart */
-  .chart-card {}
-  .chart-area {
-    position: relative; height: 120px; width: 100%;
-    overflow: hidden;
-  }
-  .chart-svg { width: 100%; height: 100%; }
-  .chart-labels {
-    display: flex; justify-content: space-between;
-    margin-top: 6px; font-size: 0.62rem; color: var(--text-muted);
-    letter-spacing: 0.04em;
-  }
-
-  /* ── COLUMN 3 RIGHT ── */
-  .col-right { grid-column: 3; display: flex; flex-direction: column; gap: 14px; }
-
-  /* Daily goals */
-  .goals-list { display: flex; flex-direction: column; gap: 8px; }
-  .goal-item {
-    display: flex; align-items: center; gap: 10px;
-    padding: 8px 10px;
-    background: rgba(255,255,255,0.03);
-    border: 1px solid rgba(255,255,255,0.06);
-    border-radius: 8px; font-size: 0.8rem;
-  }
-  .goal-check {
-    width: 20px; height: 20px; border-radius: 50%; flex-shrink: 0;
-    display: flex; align-items: center; justify-content: center; font-size: 0.65rem;
-  }
-  .goal-check.done { background: var(--emerald-mid); color: var(--frost); }
-  .goal-check.todo { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); color: var(--text-muted); }
-  .goal-text { color: var(--text-main); font-size: 0.78rem; flex: 1; }
-  .goal-xp { font-size: 0.65rem; color: var(--gold); font-weight: 600; }
-
-  /* Word of day */
-  .wod-card { padding: 16px 18px; }
-  .wod-word {
-    font-family: 'Syne', sans-serif; font-size: 1.3rem; font-weight: 800;
-    color: var(--frost); letter-spacing: -0.02em; margin-bottom: 3px;
-  }
-  .wod-type { font-size: 0.65rem; color: var(--gold); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 8px; }
-  .wod-def { font-size: 0.78rem; color: var(--text-dim); line-height: 1.5; margin-bottom: 10px; font-style: italic; }
-  .wod-example { font-size: 0.75rem; color: var(--text-main); line-height: 1.5; padding: 8px 10px;
-    background: rgba(30,138,94,0.1); border-left: 2px solid var(--emerald-lit);
-    border-radius: 0 6px 6px 0; }
-
-  /* PWA card */
-  .pwa-card { padding: 14px 18px; }
-  .pwa-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
-  .pwa-icon {
-    width: 36px; height: 36px; border-radius: 8px;
-    background: rgba(30,138,94,0.15); border: 1px solid rgba(30,138,94,0.25);
-    display: flex; align-items: center; justify-content: center; font-size: 1rem;
-    flex-shrink: 0;
-  }
-  .pwa-text { font-size: 0.78rem; color: var(--text-main); font-weight: 500; }
-  .pwa-sub  { font-size: 0.68rem; color: var(--text-dim); margin-top: 1px; }
-  .toggle-row { display: flex; align-items: center; justify-content: space-between; padding: 8px 0; border-top: 1px solid var(--border); }
-  .toggle-label { font-size: 0.75rem; color: var(--text-dim); }
-  .toggle {
-    width: 36px; height: 20px; border-radius: 10px;
-    background: var(--emerald-mid); position: relative; cursor: pointer;
-    transition: background 0.2s; flex-shrink: 0;
-  }
-  .toggle::after {
-    content: ''; position: absolute; top: 3px; right: 3px;
-    width: 14px; height: 14px; border-radius: 50%;
-    background: white; transition: right 0.2s;
-  }
-  .toggle.off { background: rgba(255,255,255,0.12); }
-  .toggle.off::after { right: auto; left: 3px; }
-
-  /* RESPONSIVE */
-  @media (max-width: 1100px) {
-    .dash-grid { grid-template-columns: 240px 1fr; grid-template-rows: auto auto; }
-    .col-right { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(3, 1fr); }
-  }
-  @media (max-width: 720px) {
-    .dash-grid { grid-template-columns: 1fr; padding: 14px; }
-    .col-left, .col-center, .col-right { grid-column: 1; }
-    .col-right { grid-template-columns: 1fr; }
-    .feature-row { grid-template-columns: 1fr 1fr; }
-    .nav-tabs { display: none; }
-  }
+.reset-btn{display:block;margin:1.5rem auto 0;background:transparent;border:1px solid rgba(255,255,255,0.1);color:var(--muted);font-size:0.72rem;font-family:'DM Mono',monospace;border-radius:8px;padding:6px 16px;cursor:pointer;transition:all 0.2s}
+.reset-btn:hover{border-color:var(--red);color:var(--red)}
 </style>
 </head>
 <body>
-
-<!-- NAV -->
-<nav class="nav">
-  <div class="nav-brand" onclick="showDash()">
-    <span class="flag">🇩🇪</span> DeutschPath C1
+<div id="app">
+  <div class="hero">
+    <div class="hero-flag">
+      <div class="flag-s" style="background:#222"></div>
+      <div class="flag-s" style="background:#d00"></div>
+      <div class="flag-s" style="background:#ffcc00"></div>
+    </div>
+    <div class="hero-title">DeutschPath</div>
+    <div class="hero-sub">A1 → C1 · Language Learning Tracker</div>
   </div>
-  <div class="nav-tabs">
-    <button class="nav-tab active" id="tab-home">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9,22 9,12 15,12 15,22"/></svg>
-      Home
-    </button>
-    <button class="nav-tab" id="tab-roadmap">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3h6l3 3 3-3h6"/><line x1="12" y1="6" x2="12" y2="21"/></svg>
-      Roadmap
-    </button>
-    <button class="nav-tab" id="tab-ai">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
-      KI-Partner
-    </button>
-    <button class="nav-tab" id="tab-profile">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-      Profil
-    </button>
-    <button class="nav-tab" id="tab-settings">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
-      Einstellungen
-    </button>
+
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="stat-num red" id="stat-weeks">0</div>
+      <div class="stat-label">weeks done</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num gold" id="stat-pct">0%</div>
+      <div class="stat-label">roadmap</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num green" id="stat-streak">0</div>
+      <div class="stat-label">day streak</div>
+    </div>
   </div>
-</nav>
 
-<!-- ══════════════════════════════
-     LOGIN SCREEN
-══════════════════════════════ -->
-<div id="login-screen" class="screen active">
-  <div class="login-bg">
-    <div class="orb orb-1"></div>
-    <div class="orb orb-2"></div>
-    <div class="orb orb-3"></div>
+  <div class="section">
+    <div class="ring-wrap">
+      <svg class="ring" viewBox="0 0 80 80">
+        <circle cx="40" cy="40" r="32" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="8"/>
+        <circle id="ring-arc" cx="40" cy="40" r="32" fill="none" stroke="url(#rg)" stroke-width="8"
+          stroke-linecap="round" stroke-dasharray="201" stroke-dashoffset="201"
+          transform="rotate(-90 40 40)" style="transition:stroke-dashoffset 1s ease"/>
+        <defs>
+          <linearGradient id="rg" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#e63946"/>
+            <stop offset="100%" stop-color="#f4a261"/>
+          </linearGradient>
+        </defs>
+      </svg>
+      <div class="ring-info">
+        <div class="pct" id="ring-pct">0%</div>
+        <div class="desc">Overall C1 Progress</div>
+        <div class="level-badge" id="cur-level">A1.1 – Beginner</div>
+      </div>
+    </div>
   </div>
-  <div class="login-card">
-    <div class="login-logo">
-      <span class="flag">🇩🇪</span>
-      <span class="login-logo-text">DeutschPath C1</span>
-    </div>
-    <div class="login-sub">Progressive Web App · Sprachlernplattform</div>
 
-    <div class="social-row">
-      <button class="social-btn">
-        <svg viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
-        Google
-      </button>
-      <button class="social-btn">
-        <svg viewBox="0 0 24 24" fill="white"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
-        Apple
-      </button>
+  <div class="section">
+    <div class="section-header">
+      <span class="section-title">7-day streak</span>
     </div>
+    <div class="streak-row">
+      <div class="flame">🔥</div>
+      <div class="streak-info">
+        <div class="streak-num" id="streak-display">0 days</div>
+        <div class="streak-label">keep going every day</div>
+      </div>
+      <div class="streak-days" id="streak-dots"></div>
+    </div>
+  </div>
 
-    <div class="login-divider">
-      <span>oder mit E-Mail</span>
+  <div class="section">
+    <div class="section-header">
+      <span class="section-title">your roadmap</span>
     </div>
+    <div class="months-grid" id="months-grid"></div>
+  </div>
 
-    <div class="field">
-      <label>E-Mail-Adresse</label>
-      <input type="email" placeholder="name@beispiel.de">
+  <div class="section">
+    <div class="milestone-box">
+      <div class="milestone-icon">🏁</div>
+      <div class="milestone-title">Milestone: Week 12 Check</div>
+      <div class="milestone-text">After completing Week 12, you should be able to write a basic social media caption in German about your coding progress. Keep going — you're building real fluency!</div>
     </div>
-    <div class="field">
-      <label>Passwort</label>
-      <input type="password" placeholder="••••••••">
-    </div>
-    <div class="forgot">Passwort vergessen?</div>
+  </div>
 
-    <button class="btn-primary" onclick="showDash()">Willkommen — Einloggen</button>
-
-    <div class="register-link">
-      Noch kein Konto? <a onclick="showDash()">Jetzt registrieren</a>
+  <div class="section">
+    <div class="chart-wrap">
+      <div class="chart-label">WEEKLY PROGRESS</div>
+      <div style="position:relative;height:180px"><canvas id="progChart"></canvas></div>
     </div>
+  </div>
+
+  <div class="section">
+    <button class="reset-btn" onclick="resetAll()">reset all progress</button>
   </div>
 </div>
 
-<!-- ══════════════════════════════
-     DASHBOARD SCREEN
-══════════════════════════════ -->
-<div id="dash-screen" class="screen">
-  <div class="dash-grid">
-
-    <!-- COL 1: LEFT -->
-    <div class="col-left">
-
-      <!-- Progress Ring -->
-      <div class="card ring-card">
-        <div class="card-title">C1 Kompetenz</div>
-        <div class="ring-wrap">
-          <svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
-            <defs>
-              <linearGradient id="ringGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stop-color="#1e8a5e"/>
-                <stop offset="60%" stop-color="#3ab87a"/>
-                <stop offset="100%" stop-color="#c9a84c"/>
-              </linearGradient>
-            </defs>
-            <circle class="ring-track" cx="60" cy="60" r="54"/>
-            <circle class="ring-fill" cx="60" cy="60" r="54" id="mainRing"/>
-          </svg>
-          <div class="ring-center">
-            <div class="ring-pct">68%</div>
-            <div class="ring-label">Gesamtfortschritt</div>
-          </div>
-        </div>
-        <div class="level-badge">🎯 C1 Niveau</div>
-        <div class="level-sub">Fortgeschrittener Lernender</div>
-      </div>
-
-      <!-- Streak -->
-      <div class="card streak-card">
-        <div class="card-title">Lernserie</div>
-        <div class="streak-row">
-          <div>
-            <div class="streak-num">21</div>
-            <div class="streak-unit">Tage am Stück 🔥</div>
-          </div>
-          <div style="text-align:right">
-            <div style="font-family:Syne;font-size:1.1rem;font-weight:700;color:var(--gold)">1 840</div>
-            <div class="streak-unit">XP diese Woche</div>
-          </div>
-        </div>
-        <div class="xp-bar-wrap"><div class="xp-bar"></div></div>
-        <div class="xp-label"><span>1 840 XP</span><span>2 700 XP bis B2→C1</span></div>
-      </div>
-
-      <!-- Skill Breakdown -->
-      <div class="card">
-        <div class="card-title">Fertigkeiten</div>
-        <div class="skill-grid">
-          <div class="skill-chip ok">
-            <div class="skill-chip-name">🎧 Hören</div>
-            <div class="skill-chip-pct">82%</div>
-            <div class="skill-mini-bar"><div class="skill-mini-fill" style="width:82%"></div></div>
-          </div>
-          <div class="skill-chip warn">
-            <div class="skill-chip-name">🗣 Sprechen</div>
-            <div class="skill-chip-pct">61%</div>
-            <div class="skill-mini-bar"><div class="skill-mini-fill" style="width:61%"></div></div>
-          </div>
-          <div class="skill-chip ok">
-            <div class="skill-chip-name">📖 Lesen</div>
-            <div class="skill-chip-pct">78%</div>
-            <div class="skill-mini-bar"><div class="skill-mini-fill" style="width:78%"></div></div>
-          </div>
-          <div class="skill-chip warn">
-            <div class="skill-chip-name">✍️ Schreiben</div>
-            <div class="skill-chip-pct">55%</div>
-            <div class="skill-mini-bar"><div class="skill-mini-fill" style="width:55%"></div></div>
-          </div>
-        </div>
-      </div>
-
-    </div><!-- /col-left -->
-
-    <!-- COL 2: CENTER -->
-    <div class="col-center">
-
-      <!-- Feature Tiles -->
-      <div class="feature-row">
-        <div class="feature-tile">
-          <div class="ft-icon em">🃏</div>
-          <div class="ft-name">Lernkartei</div>
-          <div class="ft-desc">500+ C1-Karten mit Spaced Repetition</div>
-        </div>
-        <div class="feature-tile">
-          <div class="ft-icon go">🎙</div>
-          <div class="ft-name">KI-Sprechpartner</div>
-          <div class="ft-desc">Gesprächstraining mit KI auf C1-Niveau</div>
-        </div>
-        <div class="feature-tile">
-          <div class="ft-icon re">📐</div>
-          <div class="ft-name">Grammatik-Tiefe</div>
-          <div class="ft-desc">Konjunktiv II, Genitivstrukturen & mehr</div>
-        </div>
-      </div>
-
-      <!-- Roadmap -->
-      <div class="card roadmap-card" style="flex:1">
-        <div class="card-title">Ihr Lernpfad — C1 Roadmap</div>
-        <div class="roadmap-list">
-
-          <div class="roadmap-item">
-            <div class="roadmap-dot done">✓</div>
-            <div style="flex:1">
-              <div class="rm-module">Modul 1 · Abgeschlossen</div>
-              <div class="rm-title">B2 Festigung & Übergangsvokabular</div>
-              <div class="rm-bar-wrap"><div class="rm-bar done" style="width:100%"></div></div>
-            </div>
-            <span class="rm-tag done">100%</span>
-            <div class="roadmap-line"></div>
-          </div>
-
-          <div class="roadmap-item">
-            <div class="roadmap-dot done">✓</div>
-            <div style="flex:1">
-              <div class="rm-module">Modul 2 · Abgeschlossen</div>
-              <div class="rm-title">Passivkonstruktionen & Modalverben</div>
-              <div class="rm-bar-wrap"><div class="rm-bar done" style="width:100%"></div></div>
-            </div>
-            <span class="rm-tag done">100%</span>
-            <div class="roadmap-line"></div>
-          </div>
-
-          <div class="roadmap-item">
-            <div class="roadmap-dot active">►</div>
-            <div style="flex:1">
-              <div class="rm-module">Modul 3 · Aktuell</div>
-              <div class="rm-title">Konjunktiv II — Hypothesen & Höflichkeit</div>
-              <div class="rm-bar-wrap"><div class="rm-bar active" style="width:63%"></div></div>
-            </div>
-            <span class="rm-tag active">63%</span>
-            <div class="roadmap-line"></div>
-          </div>
-
-          <div class="roadmap-item">
-            <div class="roadmap-dot upcoming">4</div>
-            <div style="flex:1">
-              <div class="rm-module">Modul 4 · Geplant</div>
-              <div class="rm-title">Akademisches C1-Vokabular (Gold)</div>
-              <div class="rm-bar-wrap"><div class="rm-bar active" style="width:0%"></div></div>
-            </div>
-            <span class="rm-tag upcoming">Gesperrt</span>
-            <div class="roadmap-line"></div>
-          </div>
-
-          <div class="roadmap-item">
-            <div class="roadmap-dot upcoming">5</div>
-            <div style="flex:1">
-              <div class="rm-module">Modul 5 · Geplant</div>
-              <div class="rm-title">Medien & Gesellschaft — Diskursmuster</div>
-              <div class="rm-bar-wrap"><div class="rm-bar active" style="width:0%"></div></div>
-            </div>
-            <span class="rm-tag upcoming">Gesperrt</span>
-          </div>
-
-        </div>
-      </div>
-
-      <!-- Chart -->
-      <div class="card chart-card">
-        <div class="card-title">Fortschrittsübersicht — 2025</div>
-        <div class="chart-area">
-          <svg class="chart-svg" viewBox="0 0 600 120" preserveAspectRatio="none">
-            <defs>
-              <linearGradient id="chartGrad" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stop-color="#1e8a5e" stop-opacity="0.35"/>
-                <stop offset="100%" stop-color="#1e8a5e" stop-opacity="0"/>
-              </linearGradient>
-            </defs>
-            <!-- Grid lines -->
-            <line x1="0" y1="30" x2="600" y2="30" stroke="rgba(30,138,94,0.08)" stroke-width="1"/>
-            <line x1="0" y1="60" x2="600" y2="60" stroke="rgba(30,138,94,0.08)" stroke-width="1"/>
-            <line x1="0" y1="90" x2="600" y2="90" stroke="rgba(30,138,94,0.08)" stroke-width="1"/>
-            <!-- Area fill -->
-            <path d="M0,110 L50,95 L100,88 L150,75 L200,70 L250,58 L300,50 L350,42 L400,35 L450,28 L500,22 L550,18 L600,14 L600,120 L0,120 Z"
-              fill="url(#chartGrad)"/>
-            <!-- Line -->
-            <path d="M0,110 L50,95 L100,88 L150,75 L200,70 L250,58 L300,50 L350,42 L400,35 L450,28 L500,22 L550,18 L600,14"
-              fill="none" stroke="#3ab87a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-            <!-- Dots -->
-            <circle cx="300" cy="50" r="4" fill="#3ab87a"/>
-            <circle cx="450" cy="28" r="4" fill="#c9a84c"/>
-            <circle cx="600" cy="14" r="5" fill="#c9a84c" stroke="rgba(201,168,76,0.3)" stroke-width="4"/>
-          </svg>
-        </div>
-        <div class="chart-labels">
-          <span>Jan</span><span>Feb</span><span>Mär</span><span>Apr</span>
-          <span>Mai</span><span>Jun</span><span>Jul</span><span>Aug</span>
-          <span>Sep</span><span>Okt</span><span>Nov</span><span>Dez</span>
-        </div>
-      </div>
-
-    </div><!-- /col-center -->
-
-    <!-- COL 3: RIGHT -->
-    <div class="col-right">
-
-      <!-- Daily Goals -->
-      <div class="card">
-        <div class="card-title">Tägliche Ziele</div>
-        <div class="goals-list">
-          <div class="goal-item">
-            <div class="goal-check done">✓</div>
-            <div class="goal-text">10 Vokabeln wiederholen</div>
-            <div class="goal-xp">+50 XP</div>
-          </div>
-          <div class="goal-item">
-            <div class="goal-check done">✓</div>
-            <div class="goal-text">Hörübung (15 Min.)</div>
-            <div class="goal-xp">+80 XP</div>
-          </div>
-          <div class="goal-item">
-            <div class="goal-check done">✓</div>
-            <div class="goal-text">Grammatik — Konjunktiv II</div>
-            <div class="goal-xp">+120 XP</div>
-          </div>
-          <div class="goal-item">
-            <div class="goal-check todo">○</div>
-            <div class="goal-text">KI-Gespräch (10 Min.)</div>
-            <div class="goal-xp">+100 XP</div>
-          </div>
-          <div class="goal-item">
-            <div class="goal-check todo">○</div>
-            <div class="goal-text">Lesetext analysieren</div>
-            <div class="goal-xp">+90 XP</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Word of the Day -->
-      <div class="card wod-card">
-        <div class="card-title">Wort des Tages</div>
-        <div class="wod-word">die Auseinandersetzung</div>
-        <div class="wod-type">Nomen · Femininum · C1</div>
-        <div class="wod-def">Konflikt, Diskussion oder intellektuelle Debatte zwischen Parteien</div>
-        <div class="wod-example">„Die wissenschaftliche Auseinandersetzung mit dem Thema führte zu neuen Erkenntnissen."</div>
-      </div>
-
-      <!-- PWA Card -->
-      <div class="card pwa-card">
-        <div class="card-title">PWA-Einstellungen</div>
-        <div class="pwa-row">
-          <div class="pwa-icon">📲</div>
-          <div>
-            <div class="pwa-text">Zum Startbildschirm</div>
-            <div class="pwa-sub">Als App installieren</div>
-          </div>
-        </div>
-        <div class="toggle-row">
-          <span class="toggle-label">Offlinemodus</span>
-          <div class="toggle" onclick="this.classList.toggle('off')"></div>
-        </div>
-        <div class="toggle-row">
-          <span class="toggle-label">Push-Benachrichtigungen</span>
-          <div class="toggle" onclick="this.classList.toggle('off')"></div>
-        </div>
-        <div class="toggle-row">
-          <span class="toggle-label">Dunkles Design</span>
-          <div class="toggle" onclick="this.classList.toggle('off')"></div>
-        </div>
-      </div>
-
-    </div><!-- /col-right -->
-
-  </div><!-- /dash-grid -->
-</div>
-
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <script>
-function showDash() {
-  document.getElementById('login-screen').classList.remove('active');
-  document.getElementById('dash-screen').classList.add('active');
-  document.querySelector('.nav-tabs').style.display = 'flex';
-  // Animate ring
-  setTimeout(() => {
-    const ring = document.getElementById('mainRing');
-    // circumference = 2π×54 ≈ 339; offset for 68% = 339*(1-0.68) ≈ 108
-    ring.style.strokeDashoffset = '108';
-  }, 200);
+const MONTHS = [
+  {
+    id:1, name:'The Backend', subtitle:'Basic Syntax & System Architecture',
+    level:'A1.1', tag:'A1.1',
+    weeks:[
+      {n:1,title:'Phonetics & Alphabet',desc:'Pronounce Umlaute (ä,ö,ü) and ch/sch sounds'},
+      {n:2,title:'Pronouns & Sein/Haben',desc:'Core variables — present tense of regular verbs'},
+      {n:3,title:'Nominative Case & Articles',desc:'der, die, das — colors, numbers 0-100, greetings'},
+      {n:4,title:'Sentence Structure',desc:'V2 Rule — word order in statements and questions'},
+    ],
+    project:'Set up your PWA database schema to track "Words Learned" vs. "Words Mastered."'
+  },
+  {
+    id:2, name:'The API', subtitle:'Interacting with the Environment',
+    level:'A1.2 – A2.1', tag:'A2',
+    weeks:[
+      {n:5,title:'Accusative Case',desc:'Direct objects — "I have a..." or "I see the..."'},
+      {n:6,title:'Modal Verbs',desc:'können, müssen, wollen — ability & necessity'},
+      {n:7,title:'The Perfekt Tense',desc:'Spoken past — how to say what you did yesterday using "ge-"'},
+      {n:8,title:'Prepositions of Place & Time',desc:'nach/zu (movement) vs in/bei (location)'},
+    ],
+    project:'Implement your "Daily Streak" flame icons in the UI.'
+  },
+  {
+    id:3, name:'The Logic Layer', subtitle:'Connecting Thoughts & Handling Complexity',
+    level:'A2.2', tag:'A2.2',
+    weeks:[
+      {n:9,title:'Dative Case',desc:'The indirect object boss — verbs that trigger Dative'},
+      {n:10,title:'Subordinating Conjunctions',desc:'weil, dass, wenn — verb moves to end of sentence'},
+      {n:11,title:'Reflexive Verbs',desc:'sich freuen, sich waschen — daily routine descriptions'},
+      {n:12,title:'Comparative & Superlative',desc:'gut, besser, am besten — good, better, best'},
+    ],
+    project:'Create a "Grammar Debugger" log in your dashboard to track Dative mistakes.'
+  },
+  {
+    id:4, name:'The Optimization', subtitle:'Nuance & Professional Communication',
+    level:'B1.1', tag:'B1.1',
+    weeks:[
+      {n:13,title:'Adjective Endings',desc:'Hardest part for many — practice the tables daily'},
+      {n:14,title:'Passive Voice',desc:'wird gemacht — focusing on the action, not the actor'},
+      {n:15,title:'Relative Clauses',desc:'"The app that I built..." — connecting sentences fluently'},
+      {n:16,title:'Präteritum',desc:'Written past — high-frequency verbs like war and hatte'},
+    ],
+    project:'Record a short "Dev Vlog" video in German and post to a private test feed.'
+  },
+  {
+    id:5, name:'The C1 Transition', subtitle:'Abstract Topics & Preparing for the C1 Leap',
+    level:'B1.2', tag:'B1.2',
+    weeks:[
+      {n:17,title:'Konjunktiv II',desc:'Conditional — "I would like," "If I had time" — polite requests'},
+      {n:18,title:'Genitive Prepositions',desc:'wegen, trotz, während — makes German sound advanced'},
+      {n:19,title:'Two-Part Connectors',desc:'nicht nur... sondern auch — complex logical arguments'},
+      {n:20,title:'B1 Mock Exam & Review',desc:'Deep dive: Politics, Environment, Technology vocab'},
+    ],
+    project:'Finalize your C1 Roadmap UI so it "unlocks" automatically once you finish this week.'
+  }
+];
+
+const STATE_KEY = 'dp_state';
+let state = {weeks:{}, streak:0, lastDay:null, expanded:null};
+
+function save(){try{localStorage.setItem(STATE_KEY,JSON.stringify(state))}catch(e){}}
+function load(){try{const s=localStorage.getItem(STATE_KEY);if(s)state=JSON.parse(s)}catch(e){}}
+load();
+
+function doneWeeks(){return Object.values(state.weeks).filter(Boolean).length}
+function totalPct(){return Math.round(doneWeeks()/20*100)}
+
+function getLevel(pct){
+  if(pct<10)return'A1.1 – Beginner';
+  if(pct<25)return'A1.2 – Elementary';
+  if(pct<40)return'A2.1 – Pre-Intermediate';
+  if(pct<55)return'A2.2 – Intermediate';
+  if(pct<70)return'B1.1 – Lower-Intermediate';
+  if(pct<85)return'B1.2 – Upper-Intermediate';
+  return'C1 Candidate';
 }
 
-// Initially hide tabs on login
-document.querySelector('.nav-tabs').style.display = 'none';
+function renderStreak(){
+  const dots = document.getElementById('streak-dots');
+  const days=['M','T','W','T','F','S','S'];
+  const lit = state.streak % 7 || (state.streak > 0 ? 7 : 0);
+  dots.innerHTML = days.map((_,i)=>`<div class="day-dot${i<lit?' lit':''}">${_}</div>`).join('');
+  document.getElementById('streak-display').textContent=state.streak+' day'+(state.streak!==1?'s':'');
+  document.getElementById('stat-streak').textContent=state.streak;
+}
 
-// Skill bar animation on scroll / load
-setTimeout(() => {
-  document.querySelectorAll('.skill-mini-fill').forEach(el => {
-    el.style.width = el.style.width || '0%';
+function renderStats(){
+  const pct=totalPct();
+  document.getElementById('stat-weeks').textContent=doneWeeks();
+  document.getElementById('stat-pct').textContent=pct+'%';
+  document.getElementById('ring-pct').textContent=pct+'%';
+  document.getElementById('cur-level').textContent=getLevel(pct);
+  const arc=document.getElementById('ring-arc');
+  arc.style.strokeDashoffset=201-(201*pct/100);
+}
+
+function monthProgress(m){
+  return m.weeks.filter(w=>state.weeks[w.n]).length;
+}
+
+function renderMonths(){
+  const grid=document.getElementById('months-grid');
+  grid.innerHTML='';
+  MONTHS.forEach((m,mi)=>{
+    const prevDone=mi===0||MONTHS[mi-1].weeks.every(w=>state.weeks[w.n]);
+    const allDone=m.weeks.every(w=>state.weeks[w.n]);
+    const prog=monthProgress(m);
+    const progPct=Math.round(prog/m.weeks.length*100);
+    const isOpen=state.expanded===m.id;
+    const color=allDone?'#4caf82':prevDone?'#e63946':'#888';
+    const tagLabel=allDone?'done':prevDone?'active':'locked';
+    const tagText=allDone?'complete':prevDone?'in progress':'locked';
+
+    const card=document.createElement('div');
+    card.className='month-card'+(allDone?' done':!prevDone?' locked':'')+(isOpen?' active':'');
+    card.innerHTML=`
+      <div class="month-head">
+        <div>
+          <div class="month-label">Month ${m.id} · ${m.level}</div>
+          <div class="month-name">${m.name}</div>
+        </div>
+        <div class="month-tag ${tagLabel}">${tagText}</div>
+      </div>
+      <div class="month-prog"><div class="month-prog-fill" style="width:${progPct}%;background:${color}"></div></div>
+      <div class="month-body${isOpen?' open':''}">
+        <div style="font-size:0.72rem;color:var(--muted);margin-bottom:10px">${m.subtitle}</div>
+        ${m.weeks.map(w=>`
+          <div class="week-item">
+            <div class="week-check${state.weeks[w.n]?' done':''}" data-week="${w.n}"></div>
+            <div class="week-text">
+              <div class="week-num">Week ${w.n}</div>
+              <div class="week-title">${w.title}</div>
+              <div class="week-desc">${w.desc}</div>
+            </div>
+          </div>
+        `).join('')}
+        <div class="project-task">
+          <div class="pt-label">PROJECT TASK</div>
+          <div class="pt-text">${m.project}</div>
+        </div>
+      </div>
+    `;
+
+    if(prevDone){
+      card.querySelector('.month-head').addEventListener('click',()=>{
+        state.expanded=isOpen?null:m.id;
+        save();renderMonths();
+      });
+    }
+    card.querySelectorAll('.week-check').forEach(btn=>{
+      btn.addEventListener('click',e=>{
+        e.stopPropagation();
+        const wn=parseInt(btn.dataset.week);
+        state.weeks[wn]=!state.weeks[wn];
+        if(state.weeks[wn]) state.streak=(state.streak||0)+1;
+        else if(state.streak>0) state.streak--;
+        save();renderAll();
+      });
+    });
+    grid.appendChild(card);
   });
-}, 100);
+}
+
+let chart=null;
+function renderChart(){
+  const labels=MONTHS.map(m=>m.weeks.map(w=>'W'+w.n)).flat();
+  const data=Array.from({length:20},(_,i)=>{
+    const done=Object.keys(state.weeks).filter(k=>parseInt(k)<=i+1&&state.weeks[k]).length;
+    return Math.round(done/(i+1)*100);
+  });
+  const ctx=document.getElementById('progChart').getContext('2d');
+  if(chart){chart.destroy();}
+  chart=new Chart(ctx,{
+    type:'line',
+    data:{
+      labels,
+      datasets:[{
+        label:'Mastery %',
+        data,
+        borderColor:'#e63946',
+        backgroundColor:'rgba(230,57,70,0.08)',
+        fill:true,
+        tension:0.4,
+        pointRadius:3,
+        pointBackgroundColor:'#e63946'
+      }]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false}},
+      scales:{
+        x:{ticks:{color:'#666',font:{size:9}},grid:{color:'rgba(255,255,255,0.04)'}},
+        y:{min:0,max:100,ticks:{color:'#666',font:{size:9},callback:v=>v+'%'},grid:{color:'rgba(255,255,255,0.04)'}}
+      }
+    }
+  });
+}
+
+function renderAll(){
+  renderStats();
+  renderStreak();
+  renderMonths();
+  renderChart();
+}
+
+function resetAll(){
+  if(confirm('Reset all progress?')){
+    state={weeks:{},streak:0,lastDay:null,expanded:null};
+    save();renderAll();
+  }
+}
+
+renderAll();
 </script>
 </body>
 </html>
